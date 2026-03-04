@@ -1,0 +1,166 @@
+/* style.css — Paleta inspirada na imagem enviada
+	Tons: bege caloroso, marrom/terracota, laranja suave e acentos verdes
+	Tipografia: Playfair Display (títulos) + Inter (texto)
+	Observação: as fontes são carregadas via <link> no HTML para melhor desempenho.
+*/
+
+:root{
+	/* Fundo e superfícies */
+	--bg: #fbf3e8;       /* bege claro */
+	--card: #fffaf6;     /* superfície do card */
+
+	/* Cores principais */
+	--primary-dark: #7a4a20; /* marrom quente */
+	--primary: #b7692e;      /* terracota */
+	--primary-light: #ffb86b;/* laranja suave */
+
+	/* Acentos */
+	--accent-green: #7aa06a; /* verde suave */
+
+	--text: #2b2219;      /* marrom escuro para texto */
+	--muted: #7b6b60;     /* texto secundário */
+	--border: rgba(38,24,14,0.06);
+	--radius: 14px;
+	--max-width: 480px;
+}
+
+/* Reset compacto */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+	font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+	background: linear-gradient(180deg,var(--bg), #f7efe2 120%);
+	color:var(--text);
+	-webkit-font-smoothing:antialiased;
+	-moz-osx-font-smoothing:grayscale;
+	min-height:100vh;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	padding:2rem;
+}
+
+main{
+	width:100%;
+	max-width:var(--max-width);
+	background:var(--card);
+	border-radius:var(--radius);
+	padding:2rem;
+	box-shadow:0 12px 36px rgba(38,24,14,0.06);
+	border:1px solid var(--border);
+}
+
+header{margin-bottom:1rem}
+header h1{
+	font-family: 'Playfair Display', serif;
+	font-size:1.6rem;
+	color:var(--primary-dark);
+	margin-bottom:.2rem;
+	letter-spacing:0.6px;
+}
+header p{
+	color:var(--muted);
+	font-size:.95rem;
+}
+
+form{display:block}
+form > div{margin-top:1rem}
+label{display:block;font-size:.92rem;color:var(--muted);margin-bottom:.35rem}
+
+input[type='text'],
+input[type='email'],
+input[type='password'],
+select{
+	width:100%;
+	padding:.75rem 1rem;
+	border-radius:12px;
+	border:1px solid var(--border);
+	background:#fff;
+	font-size:1rem;
+	color:var(--text);
+	transition:box-shadow .18s, border-color .12s, transform .06s;
+}
+
+input::placeholder{color:#bfaea0}
+select{appearance:none}
+
+input:focus, select:focus{
+	outline:none;
+	border-color: rgba(183,105,46,0.9);
+	box-shadow:0 10px 24px rgba(183,105,46,0.08);
+}
+
+/* Checkbox / link row */
+form > div:nth-last-child(3){display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+form > div:nth-last-child(3) label{display:flex;align-items:center;gap:.5rem;font-size:.95rem}
+
+/* Botões */
+.btn-row{display:flex;gap:.6rem;margin-top:.6rem}
+button{
+	cursor:pointer;
+	padding:.78rem 1rem;
+	border-radius:10px;
+	border:0;
+	font-weight:700;
+	font-size:1rem;
+}
+button[type='submit']{
+	background:linear-gradient(180deg,var(--primary) 0%, var(--primary-dark) 100%);
+	color:#fff;
+	box-shadow:0 12px 28px rgba(122,74,32,0.12);
+	flex:1;
+}
+button[type='button']{
+	background:transparent;
+	color:var(--primary-dark);
+	border:1px solid rgba(122,74,32,0.08);
+	flex:1;
+}
+
+small{display:block;text-align:center;color:var(--muted);margin-top:1rem;font-size:.86rem}
+
+a{color:var(--primary-dark);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Responsividade */
+@media (max-width:480px){
+	body{padding:1rem}
+	main{padding:1.25rem;border-radius:12px}
+	header h1{font-size:1.35rem}
+}
+
+/* Acessibilidade: foco visível */
+:focus{outline:2px solid transparent}
+:focus-visible{outline:4px solid rgba(183,105,46,0.12);outline-offset:3px;border-radius:8px}
+
+/* Pequenas melhorias */
+input[aria-invalid='true']{border-color:#d64545}
+
+/* Modal de registro */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:opacity .18s ease, visibility .18s ease;z-index:1200}
+.modal.show{visibility:visible;opacity:1}
+.modal-content{width:96%;max-width:520px;background:var(--card);border-radius:14px;padding:1.25rem 1.25rem;box-shadow:0 20px 48px rgba(38,24,14,0.12);position:relative}
+.modal-close{position:absolute;right:10px;top:8px;border:0;background:transparent;font-size:26px;line-height:1;color:var(--primary-dark);cursor:pointer}
+
+/* Quando modal aparece, limitar scroll do body (fallback) */
+body.modal-open{overflow:hidden}
+
+/* estilo para o botão link 'Entrar' dentro do modal */
+.linkish{background:none;border:0;color:var(--primary-dark);text-decoration:underline;cursor:pointer;padding:0;font-weight:600}
+
+/* Pequeno ajuste: inputs dentro do modal maiores */
+.modal-content input[type='text'], .modal-content input[type='email'], .modal-content input[type='password'], .modal-content select{
+	padding:.9rem 1rem;font-size:1rem;border-radius:12px
+}
+
+/* Nota explicativa durante o cadastro */
+.signup-note{
+	background: linear-gradient(90deg, rgba(255,184,107,0.06), rgba(122,160,106,0.03));
+	border-left:4px solid var(--primary);
+	padding:.6rem .9rem;
+	border-radius:8px;
+	color:var(--primary-dark);
+	font-size:.95rem;
+	margin-bottom:.8rem;
+}
+
