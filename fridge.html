@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Food Journey — O que você tem em casa?</title>
+</head>
+<body>
+  <main role="main" aria-labelledby="fridge-title">
+    <header>
+      <h1 id="fridge-title">O que você tem em casa?</h1>
+      <p>Ajude o Food Journey listando os itens que você tem nos armários (despensa) e na geladeira. Você pode adicionar item por item ou colar uma lista separada por vírgulas.</p>
+    </header>
+
+    <form id="fridge-form" action="#" method="post" autocomplete="on" novalidate>
+      <fieldset>
+        <legend>Armários / Despensa</legend>
+
+        <div>
+          <label for="cupboard-input">Adicionar item (ex: arroz)</label>
+          <input id="cupboard-input" type="text" placeholder="Digite um item e pressione Adicionar">
+          <button type="button" id="cupboard-add">Adicionar</button>
+        </div>
+
+        <div>
+          <label for="cupboard-bulk">Colar lista (vírgula separado)</label>
+          <textarea id="cupboard-bulk" rows="3" placeholder="ex: arroz, feijão, macarrão"></textarea>
+          <button type="button" id="cupboard-bulk-add">Adicionar em lote</button>
+        </div>
+
+        <div>
+          <p>Itens nos armários:</p>
+          <ul id="cupboard-list" aria-live="polite"></ul>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Geladeira</legend>
+
+        <div>
+          <label for="fridge-input">Adicionar item (ex: leite)</label>
+          <input id="fridge-input" type="text" placeholder="Digite um item e pressione Adicionar">
+          <button type="button" id="fridge-add">Adicionar</button>
+        </div>
+
+        <div>
+          <label for="fridge-bulk">Colar lista (vírgula separado)</label>
+          <textarea id="fridge-bulk" rows="3" placeholder="ex: leite, ovos, manteiga"></textarea>
+          <button type="button" id="fridge-bulk-add">Adicionar em lote</button>
+        </div>
+
+        <div>
+          <p>Itens na geladeira:</p>
+          <ul id="fridge-list" aria-live="polite"></ul>
+        </div>
+      </fieldset>
+
+      <div>
+        <button type="button" id="save-all">Salvar itens e fechar</button>
+        <button type="button" id="skip">Pular</button>
+      </div>
+
+      <p id="msg" aria-live="polite"></p>
+    </form>
+
+  </main>
+
+  <script>
+    // Gerenciamento simples de listas e armazenamento local
+    (function(){
+      const cupboardKey = 'fj_cupboard';
+      const fridgeKey = 'fj_fridge';
+
+      const cupboardInput = document.getElementById('cupboard-input');
+      const cupboardBulk = document.getElementById('cupboard-bulk');
+      const cupboardAdd = document.getElementById('cupboard-add');
+      const cupboardBulkAdd = document.getElementById('cupboard-bulk-add');
+      const cupboardListEl = document.getElementById('cupboard-list');
+
+      const fridgeInput = document.getElementById('fridge-input');
+      const fridgeBulk = document.getElementById('fridge-bulk');
+      const fridgeAdd = document.getElementById('fridge-add');
+      const fridgeBulkAdd = document.getElementById('fridge-bulk-add');
+      const fridgeListEl = document.getElementById('fridge-list');
+
+      const saveAllBtn = document.getElementById('save-all');
+      const skipBtn = document.getElementById('skip');
+      const msg = document.getElementById('msg');
+
+      function loadList(key){
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : [];
+        } catch { return []; }
+      }
+
+      function storeList(key, list){
+        localStorage.setItem(key, JSON.stringify(list));
+      }
+
+      function renderList(el, list){
+        el.innerHTML = '';
+        list.forEach((item, idx) => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = 'Remover';
+          btn.addEventListener('click', function(){
+            list.splice(idx,1);
+            storeList(el === cupboardListEl ? cupboardKey : fridgeKey, list);
+            renderAll();
+          });
+          li.appendChild(document.createTextNode(' '));
+          li.appendChild(btn);
+          el.appendChild(li);
+        });
+        if(list.length === 0){
+          const li = document.createElement('li');
+          li.textContent = '(vazio)';
+          el.appendChild(li);
+        }
+      }
+
+      function renderAll(){
+        renderList(cupboardListEl, cupboard);
+        renderList(fridgeListEl, fridge);
+      }
+
+      // inicializar
+      const cupboard = loadList(cupboardKey);
+      const fridge = loadList(fridgeKey);
+      renderAll();
+
+      function addItemsFromText(text, targetList){
+        if(!text) return [];
+        return text.split(',').map(s => s.trim()).filter(Boolean);
+      }
+
+      cupboardAdd.addEventListener('click', function(){
+        const v = cupboardInput.value.trim();
+        if(!v) return;
+        cupboard.push(v);
+        cupboardInput.value = '';
+        storeList(cupboardKey, cupboard);
+        renderAll();
+      });
+
+      cupboardBulkAdd.addEventListener('click', function(){
+        const items = addItemsFromText(cupboardBulk.value, cupboard);
+        if(items.length === 0) return;
+        items.forEach(it => !cupboard.includes(it) && cupboard.push(it));
+        cupboardBulk.value = '';
+        storeList(cupboardKey, cupboard);
+        renderAll();
+      });
+
+      fridgeAdd.addEventListener('click', function(){
+        const v = fridgeInput.value.trim();
+        if(!v) return;
+        fridge.push(v);
+        fridgeInput.value = '';
+        storeList(fridgeKey, fridge);
+        renderAll();
+      });
+
+      fridgeBulkAdd.addEventListener('click', function(){
+        const items = addItemsFromText(fridgeBulk.value, fridge);
+        if(items.length === 0) return;
+        items.forEach(it => !fridge.includes(it) && fridge.push(it));
+        fridgeBulk.value = '';
+        storeList(fridgeKey, fridge);
+        renderAll();
+      });
+
+      saveAllBtn.addEventListener('click', function(){
+        try {
+          storeList(cupboardKey, cupboard);
+          storeList(fridgeKey, fridge);
+          // opcional: criar lista combinada
+          const combined = Array.from(new Set([...cupboard, ...fridge]));
+          localStorage.setItem('fj_ingredients_combined', JSON.stringify(combined));
+          msg.textContent = 'Itens salvos. Você pode fechar esta aba.';
+          setTimeout(function(){ window.close(); }, 900);
+        } catch (err){
+          msg.textContent = 'Erro ao salvar. Tente novamente.';
+        }
+      });
+
+      skipBtn.addEventListener('click', function(){
+        msg.textContent = 'Etapa pulada. Você pode fechar esta aba.';
+        setTimeout(function(){ window.close(); }, 700);
+      });
+    })();
+  </script>
+</body>
+</html>
